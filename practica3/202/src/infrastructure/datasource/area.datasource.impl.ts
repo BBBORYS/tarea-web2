@@ -15,7 +15,7 @@ export class AreaDatasourceImpl implements AreaDatasource {
   }
 
   async getAll(): Promise<AreaEntity[]> {
-    const areas = await prisma.Area.findMany();
+    const areas = await prisma.area.findMany();
     return areas.map( area => AreaEntity.fromObject(area) );
   }
 

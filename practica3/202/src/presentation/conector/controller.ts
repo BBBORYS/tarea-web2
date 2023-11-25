@@ -1,70 +1,80 @@
 import { Request, Response } from 'express';
-import { CreateConectorDto, UpdateConectorDto } from '../../domain/dtos';
-import { CreateConector, DeleteConector, GetConector, GetConectores, ConectorRepository, UpdateConector } from '../../domain';
+import { prisma } from '../../data/postgres';
+import {CreateConectorDto, UpdateConectorDto} from '../../domain/dtos'
 
 
-export class ConectoresController {
-
+export class conectorController {
   //* DI
-  constructor(
-    private readonly conectorRepository: ConectorRepository,
-  ) { }
-
-
-  public getConectores = ( req: Request, res: Response ) => {
-
-    new GetConectores( this.conectorRepository )
-      .execute()
-      .then( conectores => res.json( conectores ) )
-      .catch( error => res.status( 400 ).json( { error } ) );
-
+  constructor() { }
+  public getConector = async( req: Request, res: Response ) => {
+    const conector = await prisma.conector.findMany();
+    return res.json( conector );
   };
 
-  public getConectorById = ( req: Request, res: Response ) => {
+
+
+
+  public getConectorById = async( req: Request, res: Response ) => {
     const id = +req.params.id;
+    //    localhost:3000/movies/1
+    if ( isNaN( id ) ) return res.status( 400 ).json( { error: 'ID argument is not a number' } );
 
-    new GetConector( this.conectorRepository )
-      .execute( id )
-      .then( conector => res.json( conector ) )
-      .catch( error => res.status( 400 ).json( { error } ) );
+    const conector = await prisma.conector.findFirst({
+      where: { id }
+    });
+    
+    ( conector )
+      ? res.json( conector )
+      : res.status( 404 ).json( { error: `Conector with id ${ id } not found` } );
+  };
+
+
+
+
+  public createConector = async( req: Request, res: Response ) => {
+    
+    const [error, createConectorDto] = CreateConectorDto.create(req.body);
+    if ( error ) return res.status(400).json({ error });
+
+    const conector = await prisma.conector.create({
+      data: createConectorDto!
+    });
+
+    res.json( conector );
 
   };
 
-  public createConector = ( req: Request, res: Response ) => {
-    const [ error, createConectorDto ] = CreateConectorDto.create( req.body );
-    if ( error ) return res.status( 400 ).json( { error } );
-
-    new CreateConector( this.conectorRepository )
-      .execute( createConectorDto! )
-      .then( conector => res.json( conector ) )
-      .catch( error => res.status( 400 ).json( { error } ) );
 
 
-  };
-
-  public updateConector = ( req: Request, res: Response ) => {
+  public updateConector = async( req: Request, res: Response ) => {
     const id = +req.params.id;
-    const [ error, updateConectorDto ] = UpdateConectorDto.create( { ...req.body, id } );
-    if ( error ) return res.status( 400 ).json( { error } );
+    const [error, updateConectorDto] = UpdateConectorDto.create({...req.body, id});
+    if ( error ) return res.status(400).json({ error });
+    
+    const conector = await prisma.conector.findFirst({
+      where: { id }
+    });
+    if ( !conector ) return res.status( 404 ).json( { error: `Conector with id ${ id } not found` } );
+    const updatedConector = await prisma.conector.update({
+      where: { id },
+      data: updateConectorDto!.values
+    });
+    res.json( updatedConector );
+  }
 
-    new UpdateConector( this.conectorRepository )
-      .execute( updateConectorDto! )
-      .then( conector => res.json( conector ) )
-      .catch( error => res.status( 400 ).json( { error } ) );
 
-  };
-
-
-  public deleteConector = ( req: Request, res: Response ) => {
+  public deleteConector = async(req:Request, res: Response) => {
     const id = +req.params.id;
+    const conector = await prisma.conector.findFirst({
+      where: { id }
+    });
 
-    new DeleteConector( this.conectorRepository )
-      .execute( id )
-      .then( conector => res.json( conector ) )
-      .catch( error => res.status( 400 ).json( { error } ) );
-
-  };
-
-
-
-} 
+    if ( !conector ) return res.status(404).json({ error: `Conector with id ${ id } not found` });
+    const deleted = await prisma.conector.delete({
+      where: { id }
+    });
+    ( deleted ) 
+      ? res.json( deleted )
+      : res.status(400).json({ error: `Conector with id ${ id } not found` });
+  }
+}

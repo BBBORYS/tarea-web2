@@ -1,30 +1,15 @@
 import { Router } from 'express';
-import { ModelosController } from './controller';
-import { ModeloDatasourceImpl } from '../../infrastructure/datasource/modelo.datasource.impl';
-import { ModeloRepositoryImpl } from '../../infrastructure/repositories/modelo.repository.impl';
-
+import { modeloController } from './controller';
 
 export class ModeloRoutes {
-
-
   static get routes(): Router {
-
     const router = Router();
-
-    const datasource = new ModeloDatasourceImpl();
-    const modeloRepository = new ModeloRepositoryImpl( datasource );
-    const modeloController = new ModelosController(modeloRepository);
-
-    router.get('/', modeloController.getModelos );
-    router.get('/:id', modeloController.getModeloById );
-    
-    router.post('/', modeloController.createModelo );
-    router.put('/:id', modeloController.updateModelo );
-    router.delete('/:id', modeloController.deleteModelo );
-
-
+    const ModeloController = new modeloController();
+    router.get('/', ModeloController.getModelo);
+    router.get('/:id', ModeloController.getModeloById );
+    router.post('/', ModeloController.createModelo );
+    router.put('/:id', ModeloController.updateModelo );
+    router.delete('/:id', ModeloController.deleteModelo );
     return router;
   }
-
-
 }
