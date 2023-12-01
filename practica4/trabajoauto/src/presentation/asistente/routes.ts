@@ -1,15 +1,27 @@
 import { Router } from 'express';
-import { asistenteController } from './controller';
+import { AsistenteController } from './controller'
+
 
 export class AsistenteRoutes {
+
+
   static get routes(): Router {
+
     const router = Router();
-    const AsistenteController = new asistenteController();
-    router.get('/', AsistenteController.getAsistente);
-    router.get('/:id', AsistenteController.getAsistenteById );
-    router.post('/', AsistenteController.createAsistente );
-    router.put('/:id', AsistenteController.updateAsistente );
-    router.delete('/:id', AsistenteController.deleteAsistente );
+
+    const asistenteController= new AsistenteController();
+
+    router.get('/', asistenteController.getAsistente );
+    router.get('/:id', asistenteController.getAsistenteById );
+    
+    router.post('/', asistenteController.createAsistente );
+    router.put('/:id', asistenteController.updateasistente );
+    router.delete('/:id', asistenteController.deleteasistente);
+
+
     return router;
   }
+
+
 }
+

@@ -9,6 +9,3 @@ export const envs = {
   POSTGRES_URL: get('POSTGRES_URL').default('public').asString(),
 
 }
-
-
-

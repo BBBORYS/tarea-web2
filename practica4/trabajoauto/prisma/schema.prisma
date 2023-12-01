@@ -1,4 +1,4 @@
-// This is your Prisma schema file,
+ //This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -47,9 +47,12 @@ model Asistencia {
 
 // Solución de problemas de la impresora
 model Asistente {
-   id              Int           @id @default(autoincrement())
-  tipo            String  
-  modelo          String
+  id         Int     @id @default(autoincrement())
+  nombre     String
+  descripcion String
+  precioBase Float
+  aforoMaximo Int
+  duracion   Int
   series        Asistencia[]
 
 }
